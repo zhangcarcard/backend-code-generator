@@ -1,0 +1,45 @@
+plugins {
+    id 'java'
+    id 'maven'
+    id 'idea'
+}
+
+group 'cn.tpson.ic'
+version '1.0.0'
+
+[compileJava, compileTestJava, javadoc]*.options*.encoding = 'UTF-8'
+sourceCompatibility = 1.8
+
+repositories {
+    mavenLocal()
+    maven { url "http://maven.tpson.cn:8081/repository/maven-public/" }
+    maven { url "http://maven.aliyun.com/nexus/content/groups/public/" }
+    maven{ url 'http://maven.aliyun.com/nexus/content/repositories/jcenter'}
+    mavenCentral()
+}
+
+dependencies {
+    testCompile group: 'junit', name: 'junit', version: '4.12'
+    implementation('org.slf4j:slf4j-api:1.7.25')
+    implementation('ch.qos.logback:logback-classic:1.2.3')
+    implementation('org.apache.commons:commons-lang3:3.8.1')
+    implementation('org.freemarker:freemarker:2.3.28')
+    compileOnly('javax:javaee-api:8.0')
+    compile('org.springframework:spring-web:5.1.2.RELEASE')
+//    compile('cn.com.coollu.cloud:commons:2.1.23-SNAPSHOT')
+    compileOnly 'org.projectlombok:lombok:1.18.10'
+    annotationProcessor 'org.projectlombok:lombok:1.18.10'
+}
+
+uploadArchives {
+    repositories {
+        mavenDeployer {
+            repository(url: "http://192.168.0.189:1234/nexus/content/repositories/thirdparty/") {
+                authentication(userName: "admin", password: "tpson102304")
+            }
+            pom.version = "$project.version"
+            pom.artifactId = "$project.name"
+            pom.groupId = "$project.group"
+        }
+    }
+}
