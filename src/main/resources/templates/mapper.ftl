@@ -1,6 +1,6 @@
 package ${domain.mapperPackageName};
 
-import ${domain.basePackageName}.commons.mapper.BaseMapper;
+import ${domain.basePackageName}.commons.mybatis.BaseMapper;
 <#--import ${domain.queryPackageName}.${domain.className}QUERY;-->
 import ${domain.doPackageName}.${domain.className}DO;
 import org.apache.ibatis.annotations.Mapper;

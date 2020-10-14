@@ -5,9 +5,9 @@ import cn.tpson.mybatis.generator.annotation.Comment;
 import cn.tpson.mybatis.generator.commons.CamelCaseUtils;
 import cn.tpson.mybatis.generator.commons.DateUtils;
 import cn.tpson.mybatis.generator.commons.ReflectUtils;
-import cn.tpson.mybatis.generator.domain.firestock.warehouse.Warehouse;
-import cn.tpson.mybatis.generator.domain.statistics.Alarm;
-import cn.tpson.mybatis.generator.domain.statistics.Fault;
+import cn.tpson.mybatis.generator.domain.logistics.goods.GoodsStockInDetail;
+import cn.tpson.mybatis.generator.domain.logistics.goods.GoodsStockOutDetail;
+import cn.tpson.mybatis.generator.domain.logistics.goods.GoodsTableHeader;
 import freemarker.template.Configuration;
 import freemarker.template.Template;
 import freemarker.template.TemplateException;
@@ -27,31 +27,25 @@ import java.util.*;
  * Created by zk in 2018/11/05
  */
 public class Bootstrap {
+    private final String user = "zk";
     private static final String DB = "mysql";
-    private static final String DB_SCHEMA = "fire_stock";
-    private static final String prefixPackageName = "cn.tpson.fire.stock";
-    private static final String packagePath = "cn/tpson/fire/stock/";
-    //    private static final String basePath = "D:\\gitlab_workspace\\coollu-cloud-website\\";
-    //wangjiahui
-//    private static final String basePath = "D:/workspace/intelligent_community_backend/intelligent-community-backend/";
-    private static final String basePath = "/Users/zhangka/projects/IdeaProjects/demo/fire-stock-backend/";
-    private static final String modelName = "fire-stock";
-    private static final String serviceName = "fire-stock-biz";
-    private static final String modelNameNick = "goods/";
+    private static final String DB_SCHEMA = "fire_logistics";
+    private static final String prefixPackageName = "cn.tpson.fire.logistics";
+    private static final String packagePath = prefixPackageName.replaceAll("\\.", "/");
+    private static final String basePath = "/Users/zhangka/projects/IdeaProjects/tpson/fire_logistics_support_backend/fire-logistics-support-backend/";
+    private static final String modelName = "fire-logistics-support";
     private static final String subModelName = "goods";
-    private static final String uriBase = "goods/";
-    private static final String dbNamePrefix = "";
-    private static final String prefixApiPath = basePath + modelName + "-api/src/main/java/" + packagePath + "api/" + modelNameNick;
-    private static final String prefixBizPath = basePath + modelName + "-biz/src/main/java/" + packagePath + "biz/" + modelNameNick;
-    private static final String prefixCtrPath = basePath + modelName + "-web/src/main/java/" + packagePath + "web/" + modelNameNick;
-    private static final String bizResources = basePath + modelName + "-biz/src/main/resources/" + modelNameNick;
+    private static final String prefixApiPath = basePath + modelName + "-api/src/main/java/" + packagePath + "/api/" + subModelName + "/";
+    private static final String prefixBizPath = basePath + modelName + "-biz/src/main/java/" + packagePath + "/service/biz/" + subModelName + "/";
+    private static final String prefixCtrPath = basePath + modelName + "-rest/src/main/java/" + packagePath + "/rest/web/" + subModelName + "/";
+    private static final String bizResources = basePath + modelName + "-biz/src/main/resources/mapper/" + subModelName + "/";
 
     private static final String dtoPath = prefixApiPath + "dto/";
     private static final String queryPath = prefixApiPath + "query/";
     private static final String remoteServicePath = prefixApiPath + "remoteservice/";
     private static final String domainPath = prefixBizPath + "domain/";
     private static final String mapperPath = prefixBizPath + "mapper/";
-    private static final String mapperXmlPath = bizResources + "/mapper/";
+    private static final String mapperXmlPath = bizResources + "/sql/";
     private static final String remoteServiceImplPath = prefixBizPath + "remoteservice/";
     private static final String servicePath = prefixBizPath + "service/";
     private static final String serviceImplPath = prefixBizPath + "service/impl/";
@@ -59,14 +53,13 @@ public class Bootstrap {
     private static final String ctrPath = prefixCtrPath + "controller/";
     private static final String updatePath = prefixCtrPath + "dto/update/";
     private static final String voPath = prefixCtrPath + "dto/vo/";
-    private final String user = "zk";
 
     private Configuration cfg;
     private final boolean onlyEntity = false;//true:仅字段更新（仅更新实体类，不更新逻辑类）；false:全部重新生成；
 
     public static void main(String[] args) throws IOException, TemplateException, ClassNotFoundException {
         Bootstrap bootstrap = new Bootstrap();
-        String scanPackage = "cn.tpson.mybatis.generator.domain.firestock.goods";
+        String scanPackage = "cn.tpson.mybatis.generator.domain.logistics." + subModelName;
         //TruckBoxVideo  VideoTermType Manufacturer Toilet ToiletBox Trashcan TrashcanBox ToiletProcessData ToiletRunData AlarmRules AlarmRelation
 //        Domain domain = bootstrap.parseDomain(TestMessage.class.getName());
 
@@ -84,13 +77,21 @@ public class Bootstrap {
         Files.createDirectories(Paths.get(updatePath));
         Files.createDirectories(Paths.get(voPath));
 
-        List<Domain> domainList = bootstrap.parseDomain(scanPackage, "");
+        /*List<Domain> domainList = bootstrap.parseDomain(scanPackage, "");
+        for (Domain domain : domainList) {
+            bootstrap.write(domain);
+        }*/
+
+
+        List<Domain> domainList = bootstrap.parseDomain(Arrays.asList(
+//                GoodsStockInOrder.class,
+//                GoodsStockInDetail.class,
+//                GoodsStockOutOrder.class,
+                GoodsTableHeader.class
+        ));
         for (Domain domain : domainList) {
             bootstrap.write(domain);
         }
-/*
-        Domain domain = bootstrap.parseDomain(Warehouse.class.getName());
-        bootstrap.write(domain);*/
 
         System.out.println(bootstrap.basePath + "生成成功.");
     }
@@ -106,6 +107,7 @@ public class Bootstrap {
         this.cfg.setTemplateExceptionHandler(TemplateExceptionHandler.RETHROW_HANDLER);
         this.cfg.setLogTemplateExceptions(false);
         this.cfg.setWrapUncheckedExceptions(true);
+        this.cfg.setNumberFormat("#");
         try {
             String templatePath = SecurityUtilities.getSystemProperty("user.dir") + "/src/main/resources/templates";
             this.cfg.setDirectoryForTemplateLoading(new File(templatePath));
@@ -131,10 +133,7 @@ public class Bootstrap {
 
         Template queryTemp = cfg.getTemplate("query.ftl");
         queryTemp.process(root, new OutputStreamWriter(new FileOutputStream(queryPath + domain.getClassName() + "QUERY.java")));
-/*
-            Template mapperXmlTemp = bootstrap.getTemplate("mapperXml.ftl");
-            mapperXmlTemp.process(root, new OutputStreamWriter(new FileOutputStream(mapperXmlPath + domain.getClassName() + "Mapper.xml")));
-*/
+
         //仅更新实体字段时跳过
         if (!onlyEntity) {
             Template mapperTemp = cfg.getTemplate("mapper.ftl");
@@ -161,7 +160,7 @@ public class Bootstrap {
         updateTemp.process(root, new OutputStreamWriter(new FileOutputStream(updatePath + domain.getClassName() + "UPDATE.java")));
 
         Template sqlTemp = cfg.getTemplate("sql-" + DB + ".ftl");
-        sqlTemp.process(root, new OutputStreamWriter(new FileOutputStream(bizResources + domain.getTableName() + ".sql")));
+        sqlTemp.process(root, new OutputStreamWriter(new FileOutputStream(mapperXmlPath + domain.getTableName() + ".sql")));
 
         System.out.println(domain.getClassName() + "已完成.");
     }
@@ -204,19 +203,28 @@ public class Bootstrap {
                 continue;
             }
 
-            Domain domain = parseDomain(className);
+            Class<?> clazz = Class.forName(className);
+            Domain domain = parseDomain(clazz);
             domains.add(domain);
         }
 
         return domains;
     }
 
+    public List<Domain> parseDomain(List<Class<?>> clazzList) throws ClassNotFoundException {
+        List<Domain> list = new ArrayList<>();
+        for (Class<?> clazz : clazzList) {
+            Domain domain = parseDomain(clazz);
+            list.add(domain);
+        }
 
-    public Domain parseDomain(String className) throws ClassNotFoundException {
-        Class<?> clazz = Class.forName(className);
+        return list;
+    }
+
+    public Domain parseDomain(Class<?> clazz) throws ClassNotFoundException {
         String date = DateUtils.getFormatDateTime(DateUtils.now(), "yyyy/MM/dd");
         String clazzSimpleName = clazz.getSimpleName();
-        String tableName = dbNamePrefix + CamelCaseUtils.toUnderScoreCase(clazzSimpleName);
+        String tableName = CamelCaseUtils.toUnderScoreCase(clazzSimpleName);
         List<Property> ps = parseProperty(clazz);
         List<String> dComments = new ArrayList<>();
 
@@ -230,23 +238,25 @@ public class Bootstrap {
         domain.setName(d.name());
         domain.setDate(date);
         domain.setComments(dComments);
-        domain.setTableName(tableName);
+        domain.setTableName(tableName.startsWith(subModelName) ? tableName : subModelName + "_" + tableName);
         domain.setClassName(clazzSimpleName);
-        domain.setUri(uriBase + CamelCaseUtils.toUnderScoreCase(clazzSimpleName).replaceAll("_", "/"));
+
+        String uri = CamelCaseUtils.toUnderScoreCase(clazzSimpleName).replaceAll("_", "/");
+        uri = uri.startsWith(subModelName) ? uri : subModelName + "/" + uri;
+        domain.setUri(uri);
         domain.setPs(ps);
 
         domain.setBasePackageName(prefixPackageName);
         domain.setDtoPackageName(prefixPackageName + ".api." + subModelName + ".dto");
         domain.setQueryPackageName(prefixPackageName + ".api." + subModelName + ".query");
         domain.setRemoteServicePackageName(prefixPackageName + ".api." + subModelName + ".remoteservice");
-        domain.setDoPackageName(prefixPackageName + ".biz." + subModelName + ".domain");
-        domain.setMapperPackageName(prefixPackageName + ".biz." + subModelName + ".mapper");
-        domain.setRemoteServiceImplPackageName(prefixPackageName + ".biz." + subModelName + ".remoteservice");
-        domain.setServicePackageName(prefixPackageName + ".biz." + subModelName + ".service");
-        domain.setControllerPackageName(prefixPackageName + ".web." + subModelName + ".controller");
-        domain.setUpdatePackageName(prefixPackageName + ".web." + subModelName + ".dto.update");
-        domain.setVoPackageName(prefixPackageName + ".web." + subModelName + ".dto.vo");
-        domain.setServiceName(serviceName);
+        domain.setDoPackageName(prefixPackageName + ".service.biz." + subModelName + ".domain");
+        domain.setMapperPackageName(prefixPackageName + ".service.biz." + subModelName + ".mapper");
+        domain.setRemoteServiceImplPackageName(prefixPackageName + ".service.biz." + subModelName + ".remoteservice");
+        domain.setServicePackageName(prefixPackageName + ".service.biz." + subModelName + ".service");
+        domain.setControllerPackageName(prefixPackageName + ".rest.web." + subModelName + ".controller");
+        domain.setUpdatePackageName(prefixPackageName + ".rest.web." + subModelName + ".dto.update");
+        domain.setVoPackageName(prefixPackageName + ".rest.web." + subModelName + ".dto.vo");
         domain.setUser(user);
         domain.setDbSchema(DB_SCHEMA);
         domain.setSubModelName(subModelName);

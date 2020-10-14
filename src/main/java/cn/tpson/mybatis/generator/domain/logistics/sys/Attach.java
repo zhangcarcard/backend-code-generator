@@ -1,11 +1,11 @@
-package cn.tpson.mybatis.generator.domain.ic.sys;
+package cn.tpson.mybatis.generator.domain.logistics.sys;
 
 import cn.tpson.mybatis.generator.annotation.Comment;
 import cn.tpson.mybatis.generator.annotation.Domain;
 import cn.tpson.mybatis.generator.annotation.Property;
 
-@Domain(name = "楼层管理", comments = @Comment(value = "楼层管理"))
-public class SysFile {
+@Domain(name = "附件管理", comments = @Comment(value = "附件管理"))
+public class Attach {
     @Property(
             columnDefinition = "varchar(200) NOT NULL",
             comments = @Comment("url."),

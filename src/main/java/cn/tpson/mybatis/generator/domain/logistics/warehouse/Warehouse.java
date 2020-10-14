@@ -1,8 +1,10 @@
-package cn.tpson.mybatis.generator.domain.firestock.warehouse;
+package cn.tpson.mybatis.generator.domain.logistics.warehouse;
 
 import cn.tpson.mybatis.generator.annotation.Comment;
 import cn.tpson.mybatis.generator.annotation.Domain;
 import cn.tpson.mybatis.generator.annotation.Property;
+
+import java.util.Date;
 
 @Domain(name = "库房管理", comments = @Comment(value = "库房管理"))
 public class Warehouse {
@@ -24,39 +26,53 @@ public class Warehouse {
     String whLocation;
 
     @Property(
-            columnDefinition = "smallint unsigned",
+            columnDefinition = "int unsigned",
             comments = @Comment("库房面积."),
             name = "库房面积"
     )
-    Integer whArea;
+    String whArea;
 
     @Property(
             columnDefinition = "tinyint unsigned",
-            comments = @Comment("库房类型(1:固定/2:流动)."),
-            name = "库房类型(1:固定/2:流动)"
+            comments = @Comment("库房类型(1:固定/2:移动)."),
+            name = "库房类型(1:固定/2:移动)"
     )
     Integer type;
 
     @Property(
-            columnDefinition = "varchar(200)",
-            comments = @Comment("负责人信息(姓名1/电话1;姓名2/电话2)."),
-            name = "负责人信息(姓名1/电话1;姓名2/电话2)",
-            length = 200
+            columnDefinition = "json",
+            comments = @Comment("负责人信息(JSON数组, 字段:name, tel)."),
+            name = "负责人信息(JSON数组, 字段:name, tel)"
     )
     String managerInfo;
-
-    @Property(
-            columnDefinition = "bigint unsigned",
-            comments = @Comment("盘点时间(毫秒)."),
-            name = "盘点时间(毫秒)"
-    )
-    Long gmtStocktaking;
 
     @Property(
             columnDefinition = "varchar(200)",
             comments = @Comment("备注."),
             name = "备注",
-            length = 50
+            length = 200
     )
     String remarks;
+
+    @Property(
+            columnDefinition = "json",
+            comments = @Comment("库房区域(JSON串,[A, B])."),
+            name = "库房区域(JSON串,[A, B])"
+    )
+    String regions;
+
+    @Property(
+            columnDefinition = "datetime",
+            comments = @Comment("盘点时间."),
+            name = "盘点时间"
+    )
+    Date gmtStocktaking;
+
+    @Property(
+            columnDefinition = "varchar(40)",
+            comments = @Comment("车辆ID(移动库房)."),
+            name = "车辆ID(移动库房)",
+            length = 40
+    )
+    String vehicleId;
 }

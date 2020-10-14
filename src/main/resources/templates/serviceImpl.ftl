@@ -1,6 +1,6 @@
 package ${domain.servicePackageName}.impl;
 
-import ${domain.basePackageName}.commons.mapper.BaseMapper;
+import ${domain.basePackageName}.commons.mybatis.BaseMapper;
 import ${domain.dtoPackageName}.${domain.className}DTO;
 <#--import ${domain.queryPackageName}.${domain.className}QUERY;-->
 import ${domain.doPackageName}.${domain.className}DO;

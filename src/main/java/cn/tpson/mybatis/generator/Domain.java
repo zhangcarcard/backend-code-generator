@@ -31,7 +31,6 @@ public class Domain {
     private List<Property> ps;
     private String name;
     private String uri;
-    private String serviceName;
     private String user;
     private String dbSchema;
     private String subModelName;

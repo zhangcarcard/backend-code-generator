@@ -2,7 +2,8 @@ package ${domain.doPackageName};
 
 import ${domain.basePackageName}.commons.annotation.Table;
 import ${domain.basePackageName}.commons.pojo.BaseDO;
-import lombok.*;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
 
 /**
  * Created by ${domain.user} in ${domain.date}
@@ -11,13 +12,9 @@ import lombok.*;
 </#list>
  * tableName:${domain.tableName}
  */
-@NoArgsConstructor
-@AllArgsConstructor
-@Getter
-@Setter
-@ToString(callSuper = true)
+@Table(name = "${domain.tableName}", schema = "${domain.dbSchema}")
+@Data
 @EqualsAndHashCode(callSuper = true)
-@Table(name = "${domain.subModelName}_${domain.tableName}", schema = "${domain.dbSchema}")
 public class ${domain.className}DO extends BaseDO {
 <#list domain.ps as p>
     /**
